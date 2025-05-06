@@ -6,7 +6,7 @@ const path = require('path');
 
 // Configuração do bot
 const config = {
-  token: 'SEU_TOKEN_AQUI', // Substitua pelo token do seu bot
+  token: 'MTM2OTMxNzA0NDE4NDQxNjMzNg.GvAaQu.PFaLDiJDRMYNdRhcYYrVlVSK2GAGxYkI0RT2GY', // Substitua pelo token do seu bot
   guildId: '1346841875218436158', // Substitua pelo ID do seu servidor
   staffRoleId: '1369035522596536340', // Cargo para equipe de suporte
   categoryId: '1369030401045037217', // Categoria onde os canais de ticket serão criados
