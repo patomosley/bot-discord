@@ -4,13 +4,13 @@ const { Client, GatewayIntentBits, Partials, ActionRowBuilder, ButtonBuilder, Bu
 const fs = require('fs');
 const path = require('path');
 
-// Configuração do bot
+// Configuração do bot usando variáveis de ambiente
 const config = {
-  token: 'MTM2OTMxNzA0NDE4NDQxNjMzNg.GvAaQu.PFaLDiJDRMYNdRhcYYrVlVSK2GAGxYkI0RT2GY', // Substitua pelo token do seu bot
-  guildId: '1346841875218436158', // Substitua pelo ID do seu servidor
-  staffRoleId: '1369035522596536340', // Cargo para equipe de suporte
-  categoryId: '1369030401045037217', // Categoria onde os canais de ticket serão criados
-  ticketLogChannelId: '1369035065551487047', // Canal para logs dos tickets
+  token: process.env.TOKEN, // Usar variável de ambiente para o token
+  guildId: process.env.GUILD_ID || '1346841875218436158',
+  staffRoleId: process.env.STAFF_ROLE_ID || '1369035522596536340',
+  categoryId: process.env.CATEGORY_ID || '1369030401045037217',
+  ticketLogChannelId: process.env.LOG_CHANNEL_ID || '1369035065551487047',
 };
 
 // Categorias de suporte
@@ -80,26 +80,30 @@ client.on('ready', async () => {
   const guild = client.guilds.cache.get(config.guildId);
   if (!guild) return console.error('Servidor não encontrado');
   
-  await guild.commands.set([
-    {
-      name: 'setup',
-      description: 'Configura o sistema de tickets',
-      options: [
-        {
-          name: 'canal',
-          description: 'Canal onde será enviada a mensagem de criação de tickets',
-          type: 7,
-          required: true
-        }
-      ]
-    },
-    {
-      name: 'fechar',
-      description: 'Fecha um ticket atual'
-    }
-  ]);
-  
-  console.log('Comandos registrados com sucesso!');
+  try {
+    await guild.commands.set([
+      {
+        name: 'setup',
+        description: 'Configura o sistema de tickets',
+        options: [
+          {
+            name: 'canal',
+            description: 'Canal onde será enviada a mensagem de criação de tickets',
+            type: 7,
+            required: true
+          }
+        ]
+      },
+      {
+        name: 'fechar',
+        description: 'Fecha um ticket atual'
+      }
+    ]);
+    
+    console.log('Comandos registrados com sucesso!');
+  } catch (error) {
+    console.error('Erro ao registrar comandos:', error);
+  }
 });
 
 // Manipulador de comandos de barra (/)
@@ -519,5 +523,32 @@ async function closeTicket(channel, closedBy) {
   }
 }
 
+// Função para manter o bot online
+function keepAlive() {
+  // Se estiver em ambiente de produção no Replit
+  if (process.env.REPLIT_DB_URL) {
+    console.log("Configurando sistema para manter o bot online...");
+    
+    // Código para manter o bot online no Replit
+    const express = require('express');
+    const app = express();
+    const port = process.env.PORT || 3000;
+    
+    app.get('/', (req, res) => {
+      res.send('Bot está online!');
+    });
+    
+    app.listen(port, () => {
+      console.log(`Servidor express rodando na porta ${port}`);
+    });
+  }
+}
+
+// Inicializa o servidor web para manter o bot online
+keepAlive();
+
 // Conecta o bot ao Discord
-client.login(config.token);
+client.login(config.token).catch(err => {
+  console.error('Erro ao conectar ao Discord:', err);
+  console.log('Verifique se o token está configurado corretamente nas variáveis de ambiente.');
+});
